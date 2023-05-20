@@ -46,13 +46,12 @@ def create_pandas_dataframe_agent(
         suffix_to_use = suffix
         if input_variables is None:
             input_variables = ["df", "input", "agent_scratchpad"]
+    elif include_df_in_prompt:
+        suffix_to_use = SUFFIX_WITH_DF
+        input_variables = ["df", "input", "agent_scratchpad"]
     else:
-        if include_df_in_prompt:
-            suffix_to_use = SUFFIX_WITH_DF
-            input_variables = ["df", "input", "agent_scratchpad"]
-        else:
-            suffix_to_use = SUFFIX_NO_DF
-            input_variables = ["input", "agent_scratchpad"]
+        suffix_to_use = SUFFIX_NO_DF
+        input_variables = ["input", "agent_scratchpad"]
     tools = [PythonAstREPLTool(locals={"df": df})]
     prompt = ZeroShotAgent.create_prompt(
         tools, prefix=prefix, suffix=suffix_to_use, input_variables=input_variables

@@ -115,7 +115,7 @@ class PythonAstREPLTool(BaseTool):
                     output = repr(e)
                 return output
         except Exception as e:
-            return "{}: {}".format(type(e).__name__, str(e))
+            return f"{type(e).__name__}: {str(e)}"
 
     async def _arun(
         self,

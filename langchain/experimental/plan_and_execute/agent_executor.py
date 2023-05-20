@@ -40,7 +40,7 @@ class PlanAndExecute(Chain):
             run_manager.on_text(str(plan), verbose=self.verbose)
         for step in plan.steps:
             _new_inputs = {"previous_steps": self.step_container, "current_step": step}
-            new_inputs = {**_new_inputs, **inputs}
+            new_inputs = _new_inputs | inputs
             response = self.executor.step(
                 new_inputs,
                 callbacks=run_manager.get_child() if run_manager else None,
