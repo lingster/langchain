@@ -23,8 +23,7 @@ def lang_chain_tracer_v2(monkeypatch: pytest.MonkeyPatch) -> LangChainTracer:
     monkeypatch.setenv("LANGCHAIN_TENANT_ID", "test-tenant-id")
     monkeypatch.setenv("LANGCHAIN_ENDPOINT", "http://test-endpoint.com")
     monkeypatch.setenv("LANGCHAIN_API_KEY", "foo")
-    tracer = LangChainTracer()
-    return tracer
+    return LangChainTracer()
 
 
 # Mock a sample TracerSession object
