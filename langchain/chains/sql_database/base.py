@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Callable
 
 from pydantic import Extra, Field, root_validator
 
@@ -50,6 +50,8 @@ class SQLDatabaseChain(Chain):
     to fix the initial SQL from the LLM."""
     query_checker_prompt: Optional[BasePromptTemplate] = None
     """The prompt template that should be used by the query checker"""
+    query_checker_function: Optional[Callable[[str], str]] = None
+    """User defined function to process LLM generated SQL before continuing, returns bool, sql_cmd. If bool is True, the sql_cmd is used, otherwise processing will stop and sql_cmd returned."""
 
     class Config:
         """Configuration for this pydantic object."""
@@ -117,6 +119,15 @@ class SQLDatabaseChain(Chain):
                 callbacks=_run_manager.get_child(),
                 **llm_inputs,
             ).strip()
+            if self.query_checker_function:
+                result, sql_cmd = self.query_checker_function(sql_cmd)
+                if result is False:
+                    chain_result: Dict[str, Any] = {self.output_key: sql_cmd}
+                    _run_manager.on_text(sql_cmd, color="red", verbose=self.verbose)
+                    if self.return_intermediate_steps:
+                        chain_result[INTERMEDIATE_STEPS_KEY] = intermediate_steps
+                    return chain_result
+
             if not self.use_query_checker:
                 _run_manager.on_text(sql_cmd, color="green", verbose=self.verbose)
                 intermediate_steps.append(
